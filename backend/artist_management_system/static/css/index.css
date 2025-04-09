@@ -1,0 +1,33 @@
+.nav_logo{
+    height: 80px;
+}
+.register_container{
+    width: 50%;
+    margin: 2rem auto;
+    padding: 5% ;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+.alert{
+    position: absolute;
+    top:0;
+    width: 100%;
+}
+.login_container{
+    /* background-color: gray; */
+    width: 45%;
+    margin: 2rem auto;
+    padding: 5% 10%;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+.login_btn{
+    margin: auto;
+    width: 50%;
+    /* display: flex !important;
+    justify-content: center; */
+}
+
+.register_container h1,.login_container h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
