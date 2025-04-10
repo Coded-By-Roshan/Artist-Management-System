@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="tab-container">
+  <div class="tab-buttons">
+    <button class="tab-link active" onclick="openTab(event, 'userTab')">User</button>
+    <button class="tab-link" onclick="openTab(event, 'artistTab')">Artist</button>
+  </div>
+
+  <div id="userTab" class="tab-content active">
+    <div class="table_tab_header">
+      <h2>All Users</h2>
+      <div class="add_new_user">
+          <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#useraddmodal">Add User<i class="fa-solid fa-plus mx-1"></i></button>
+      </div>
+      
+    </div>
+    
+    <table class="table table-light table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">S.N</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Dob</th>
+            <th scope="col">Gender</th>
+            <th scope="col">Address</th>
+            <th scope="col">Created at</th>
+            <th scope="col">Updated at</th>
+            <th scope="col">Actions</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <th scope="row">{{user.id}}</th>
+            <td>{{user.first_name}}</td>
+            <td>{{user.last_name}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.phone}}</td>
+            <td>{{user.dob}}</td>
+            <td>{{user.gender}}</td>
+            <td>{{user.address}}</td>
+            <td>{{user.created_at}}</td>
+            <td>{{user.updated_at}}</td>
+            <td>
+              <div class="action_icons">
+                <a href="" 
+                data-id = "{{user.id}}"
+                data-first_name="{{ user.first_name }}" 
+                data-last_name="{{ user.last_name }}" 
+                data-email="{{ user.email }}" 
+                data-phone="{{ user.phone }}" 
+                data-dob="{{ user.dob}}" 
+                data-gender="{{ user.gender }}" 
+                data-address="{{ user.address }}"
+                data-created="{{ user.created_at }}"
+                class="mx-1 edit-btn" data-bs-toggle="modal" data-bs-target="#edit_user"><i class="fa-solid fa-pen"></i></a>
+                <a href="" data-url="{% url 'delete_user' user.id %}" id="delete_user"><i class="fa-solid fa-trash"></i></a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <nav aria-label="Page navigation" class="pagination_box">
+        <ul class="pagination">
+          {% if users.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{users.previous_page_number }}">Prev</a></li>
+          {% endif %}
+
+          {% for num in users.paginator.page_range %}
+          {% if num == users.number %}
+          <li class="page-item page-link"><strong>{{ num }}</strong></li>
+          {% else %}
+          <li class="page-item"> <a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+      {% endfor %}
+          {% if users.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ users.next_page_number }}">Next</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+  </div>
+
+  <div id="artistTab" class="tab-content">
+    <h2>All Artist</h2>
+    
+  </div>
+
+
+  <div class="modal fade" id="useraddmodal" tabindex="-1" aria-labelledby="useraddmodalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="useraddmodalLabel">Add User</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'add_user' %}"> {% csrf_token %}
+            <div class="row g-3 my-1">
+                <div class="col-md-6">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name">
+                </div>
+                <div class="col-md-6">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name">
+                </div>
+            </div>
+            <div class="row g-3 my-1">
+                <div class="col-6">
+                    <label for="address" class="form-label">Address </label>
+                    <input type="text" class="form-control" id="address" name="address" placeholder="Lalitpur, Patan" >
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email">
+                </div>
+            </div>
+    
+            <div class="row g-3 my-1">
+    
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <div class="col-md-6">
+                    <label for="con_password" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="con_password" name="con_password">
+                </div>
+            </div>
+            
+            <div class="row g-3 my-1">
+                <div class="col-4">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <div class="input-group">
+                        <div class="input-group-text">+977</div>
+                        <input type="text" class="form-control" id="phone" placeholder="Phone Number" name="phone">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="dob" class="form-label">DOB</label>
+                    <input type="date" class="form-control" id="dob" name="dob">
+                </div>
+                <div class="col-md-4">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" class="form-select" name="gender">
+                        <option selected>Choose...</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Others</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 my-3">
+                <button type="submit" class="btn btn-primary">Add User</button>
+            </div>
+        </form>
+        </div>
+   
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="edit_user" tabindex="-1" aria-labelledby="edit_userLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="edit_userLabel">Edit User</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'edit_user' %}"> {% csrf_token %}
+            <input type="hidden" name="id" id="edit-id">
+            <div class="row g-3 my-1">
+              <div class="col-md-6">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="edit-first_name" name="first_name">
+              </div>
+              <div class="col-md-6">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="edit-last_name" name="last_name">
+              </div>
+            </div>
+  
+            <div class="row g-3 my-1">
+              <div class="col-6">
+                <label for="address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="edit-address" name="address" placeholder="Lalitpur, Patan">
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="edit-email" name="email">
+              </div>
+            </div>
+  
+
+            <div class="row g-3 my-1">
+              <div class="col-4">
+                <label class="form-label" for="phone">Phone Number</label>
+                <div class="input-group">
+                  <div class="input-group-text">+977</div>
+                  <input type="text" class="form-control" id="edit-phone" name="phone">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="dob" class="form-label">DOB</label>
+                <input type="date" class="form-control" id="edit-dob" name="dob">
+              </div>
+              <div class="col-md-4">
+                <label for="gender" class="form-label">Gender</label>
+                <select id="edit-gender" class="form-select" name="gender">
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                  <option value="O">Others</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+        </div>
+   
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock body %}

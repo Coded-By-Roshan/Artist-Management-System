@@ -1,16 +1,40 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.core.paginator import Paginator
 from django.db import connection
 import datetime
-from django.core.exceptions import ValidationError
+from .decorators import login_required
 from django.contrib.auth.hashers import check_password
-import re
 from .database import create_user_table
 
+@login_required
+def dashboard(request):
+    query = "SELECT * FROM Users ORDER BY updated_at DESC"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+    users = []
+    print(rows)
+    for row in rows:
+        users.append({
+            'id': row[0],
+            'first_name': row[1],
+            'last_name': row[2],
+            'email': row[3],
+            'phone': row[5],
+            'dob': row[6],
+            'gender': row[7],
+            'address': row[8],
+            'created_at': row[9],
+            'updated_at':row[10]
+        })
+    paginator = Paginator(users, 2)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-def base(request):
-    return render(request,'base.html')
+    params = {'title': 'Dashboard','users': page_obj}
+    return render(request, 'dashboard.html', params)
 
 def register_admin(request):
     if request.method == 'POST':
@@ -50,10 +74,14 @@ def register_admin(request):
     return redirect('register')
 
 def register(request):
+    if request.session.get('user_id'):  
+        return redirect('dashboard')
     params = {'title':'Register'}
     return render(request,'register.html',params)
 
 def login_page(request):
+    if request.session.get('user_id'):  
+        return redirect('dashboard')
     params = {'title':'Login'}
     return render(request,'login.html',params)
 
@@ -73,12 +101,129 @@ def check_login(request):
             if check_password(password, hashed_password):
                 request.session['user_id'] = user_id
                 messages.success(request, 'Login successful!')
-                return redirect('home')
+                return redirect('dashboard')
             else:
                 messages.error(request, 'Invalid password.')
         else:
             messages.error(request, 'User does not exist.')
         return redirect('login_page')
-    return redirect('home')
+    return redirect('login_page')
+
+def add_user(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('con_password')
+        phone = request.POST.get('phone')
+        dob = request.POST.get('dob')
+        gender = request.POST.get('gender')
+        address = request.POST.get('address')  
+        if not all([first_name, last_name, email, password, password_confirm, phone, dob, gender, address]):
+            messages.error(request,'All fields are required.')
+            return redirect('dashboard')
+        if len(phone)!=10:
+            messages.error(request,'Wrong Phone Number.')
+            return redirect('dashboard')
+
+        if password != password_confirm:
+            messages.error(request,'Passwords do not match.')
+            return redirect('dashboard')
+        if gender not in ['M', 'F', 'O']:
+            messages.error(request,'Invalid gender selection.')
+            return redirect('dashboard')
+        if len(password) < 8:
+            messages.error(request,'Password must be at least 8 characters long.')
+            return redirect('dashboard')
+        
+        query = """
+            INSERT INTO Users (
+                first_name, last_name, email, password, phone, dob, gender, address, created_at, updated_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        params = [
+            first_name,
+            last_name,
+            email,
+            make_password(password),  
+            phone,
+            dob,
+            gender,
+            address,
+            datetime.datetime.now(),
+            datetime.datetime.now(),
+        ]
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(query, params)
+            messages.success(request, 'Used added successfully')
+            return redirect('dashboard')
+        except Exception as e:
+            if 'unique' in str(e).lower():
+                messages.error(request, 'Email already exists.')
+            else:
+                messages.error(request, f'An error occurred during registration.{e}')
+            return redirect('dashboard')
+    return redirect('dashboard')
+
+def logout_user(request):
+    if 'user_id' in request.session:
+        del request.session['user_id']
+        messages.success(request, 'You have been logged out.')
+    return redirect('login_page')
 
 
+def delete_user(request, user_id):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM Users WHERE id = %s", [user_id])
+        messages.success(request, "User deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"Error deleting user: {e}")
+    return redirect('dashboard')
+
+def edit_user(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('id')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        dob = request.POST.get('dob')
+        gender = request.POST.get('gender')
+        address = request.POST.get('address')
+        if len(phone)!=10:
+            messages.error(request,'Wrong Phone Number.')
+            return redirect('dashboard')
+        
+        if gender not in ['M', 'F', 'O']:
+            messages.error(request,'Invalid gender selection.')
+            return redirect('dashboard')
+        
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM Users WHERE id = %s", [user_id])
+            user = cursor.fetchone()
+
+        if not user:
+            messages.error(request, "User not found.")
+            return redirect('dashboard')
+        query = """
+            UPDATE Users SET 
+                first_name=%s, last_name=%s, email=%s, phone=%s,
+                dob=%s, gender=%s, address=%s, updated_at=%s
+            WHERE id=%s
+        """
+        params = [
+            first_name, last_name, email, phone,
+            dob, gender, address, datetime.datetime.now(), user_id
+        ]
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(query, params)
+            messages.success(request, "User updated successfully.")
+            return redirect('dashboard')
+        except Exception as e:
+            messages.error(request, f"Error updating user: {e}")
+            return redirect('edit_user', user_id=user_id)
+    return redirect('dashboard')

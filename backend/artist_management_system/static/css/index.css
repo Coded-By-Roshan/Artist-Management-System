@@ -8,12 +8,12 @@
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
 .alert{
-    position: absolute;
+    position: absolute !important;
+    z-index: 99;
     top:0;
     width: 100%;
 }
 .login_container{
-    /* background-color: gray; */
     width: 45%;
     margin: 2rem auto;
     padding: 5% 10%;
@@ -23,11 +23,69 @@
 .login_btn{
     margin: auto;
     width: 50%;
-    /* display: flex !important;
-    justify-content: center; */
 }
 
 .register_container h1,.login_container h1 {
     text-align: center;
     margin-bottom: 2rem;
+}
+
+.tab-container {
+    display: flex;
+    height: 100vh;
+  }
+.tab-buttons {
+  width: 200px;
+  background-color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ccc;
+}
+
+.tab-buttons button {
+  padding: 16px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: inherit;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  transition: background-color 0.3s;
+  font-size: 16px;
+}
+
+.tab-buttons button:hover,
+.tab-buttons button.active {
+  background-color: #ddd;
+}
+
+.tab-content {
+  flex: 1;
+  padding: 20px;
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.action_icons i{
+  cursor: pointer;
+}
+
+.table_tab_header{
+  display: flex;
+  justify-content: space-between;
+}
+.pagination_box{
+  display: flex;
+  justify-content: center;
+  margin: auto;
+
 }
