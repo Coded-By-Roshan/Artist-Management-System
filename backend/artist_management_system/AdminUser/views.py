@@ -7,15 +7,17 @@ import datetime
 from .decorators import login_required
 from django.contrib.auth.hashers import check_password
 from .database import create_user_table
+from Artist.views import get_artist
+import re
 
 @login_required
 def dashboard(request):
+    create_user_table()
     query = "SELECT * FROM Users ORDER BY updated_at DESC"
     with connection.cursor() as cursor:
         cursor.execute(query)
         rows = cursor.fetchall()
     users = []
-    print(rows)
     for row in rows:
         users.append({
             'id': row[0],
@@ -29,12 +31,38 @@ def dashboard(request):
             'created_at': row[9],
             'updated_at':row[10]
         })
-    paginator = Paginator(users, 2)  
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    user_paginator = Paginator(users, 2)  
+    user_page_number = request.GET.get('page')
+    user_page_obj = user_paginator.get_page(user_page_number)
 
-    params = {'title': 'Dashboard','users': page_obj}
+    params = {'title': 'Dashboard','users': user_page_obj,'artists':get_artist(request)}
     return render(request, 'dashboard.html', params)
+
+
+def validate_user_data(request, first_name, last_name, email, password, password_confirm, phone, dob, gender, address):
+    if not all([first_name, last_name, email, password, password_confirm, phone, dob, gender, address]):
+        messages.error(request, 'All fields are required.')
+        return False
+    if (len(phone) != 10 or not phone.isdigit()):
+        messages.error(request, 'Wrong Phone Number.')
+        return False
+    if password != password_confirm:
+        messages.error(request, 'Passwords do not match.')
+        return False
+    if gender not in ['M', 'F', 'O']:
+        messages.error(request, 'Invalid gender selection.')
+        return False
+    if len(password) < 8:
+        messages.error(request, 'Password must be at least 8 characters long.')
+        return False
+    if not re.match(r'^[A-Za-z\s]+$', first_name):
+        messages.error(request, 'First name cannot contain special characters.')
+        return False
+    if not re.match(r'^[A-Za-z\s]+$', last_name):
+        messages.error(request, 'Last name cannot contain special characters.')
+        return False
+    return True
+
 
 def register_admin(request):
     if request.method == 'POST':
@@ -42,7 +70,6 @@ def register_admin(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('con_password') 
-        print(username, email, password, password_confirm)
         if not all([username, email, password, password_confirm]):
             messages.error(request,'All fields are required.')
             return redirect('register')
@@ -69,7 +96,7 @@ def register_admin(request):
             if 'unique' in str(e).lower():
                 messages.error(request, 'Email already exists.')
             else:
-                messages.error(request, f'An error occurred during registration.{e}')
+                messages.error(request, f'An error occurred during registration.')
             return redirect('register')
     return redirect('register')
 
@@ -109,6 +136,7 @@ def check_login(request):
         return redirect('login_page')
     return redirect('login_page')
 
+@login_required
 def add_user(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -120,21 +148,7 @@ def add_user(request):
         dob = request.POST.get('dob')
         gender = request.POST.get('gender')
         address = request.POST.get('address')  
-        if not all([first_name, last_name, email, password, password_confirm, phone, dob, gender, address]):
-            messages.error(request,'All fields are required.')
-            return redirect('dashboard')
-        if len(phone)!=10:
-            messages.error(request,'Wrong Phone Number.')
-            return redirect('dashboard')
-
-        if password != password_confirm:
-            messages.error(request,'Passwords do not match.')
-            return redirect('dashboard')
-        if gender not in ['M', 'F', 'O']:
-            messages.error(request,'Invalid gender selection.')
-            return redirect('dashboard')
-        if len(password) < 8:
-            messages.error(request,'Password must be at least 8 characters long.')
+        if not validate_user_data(request, first_name, last_name, email, password, password_confirm, phone, dob, gender, address):
             return redirect('dashboard')
         
         query = """
@@ -173,7 +187,7 @@ def logout_user(request):
         messages.success(request, 'You have been logged out.')
     return redirect('login_page')
 
-
+@login_required
 def delete_user(request, user_id):
     try:
         with connection.cursor() as cursor:
@@ -183,6 +197,7 @@ def delete_user(request, user_id):
         messages.error(request, f"Error deleting user: {e}")
     return redirect('dashboard')
 
+@login_required
 def edit_user(request):
     if request.method == 'POST':
         user_id = request.POST.get('id')
@@ -193,12 +208,7 @@ def edit_user(request):
         dob = request.POST.get('dob')
         gender = request.POST.get('gender')
         address = request.POST.get('address')
-        if len(phone)!=10:
-            messages.error(request,'Wrong Phone Number.')
-            return redirect('dashboard')
-        
-        if gender not in ['M', 'F', 'O']:
-            messages.error(request,'Invalid gender selection.')
+        if not validate_user_data(request, first_name, last_name, email, "password", "password", phone, dob, gender, address):
             return redirect('dashboard')
         
         with connection.cursor() as cursor:
@@ -227,3 +237,4 @@ def edit_user(request):
             messages.error(request, f"Error updating user: {e}")
             return redirect('edit_user', user_id=user_id)
     return redirect('dashboard')
+

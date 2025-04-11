@@ -1,0 +1,108 @@
+
+
+<div class="modal fade" id="add_artist" tabindex="-1" aria-labelledby="add_artistLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="add_artistLabel">Add User</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'add_artist' %}"> {% csrf_token %}
+            <div class="row g-3 my-1">
+                <div class="col-md-6">
+                    <label for="fullname" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="fullname" name="fullname" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" class="form-control" id="address" name="address" required>
+                </div>
+                <small>Please don't include special letter in name</small>
+            </div>
+           
+            <div class="row g-3 my-1">
+             
+                <div class="col-md-4">
+                    <label for="dob" class="form-label">DOB</label>
+                    <input type="date" class="form-control" id="dob" name="dob" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" class="form-select" name="gender" required>
+                        <option selected>Choose...</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Others</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="release_year" class="form-label">First Release Year</label>
+                    <input type="number" class="form-control" min="1800" max="2050" step="1" value="2025" id="release_year" name="release_year" required />
+                </div>
+            </div>
+            <div class="col-12 my-3">
+                <button type="submit" class="btn btn-primary">Add Artist</button>
+            </div>
+        </form>
+        </div>
+   
+      </div>
+    </div>
+
+</div>
+ 
+
+<div class="modal fade" id="edit_artist" tabindex="-1" aria-labelledby="edit_artistLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="edit_artistLabel">Add User</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'edit_artist' %}"> {% csrf_token %}
+            <input type="hidden" class="form-control" id="edit-aid" name="artist_id">
+            <div class="row g-3 my-1">
+                <div class="col-md-6">
+                    <label for="fullname" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="edit-fullname" name="fullname" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" class="form-control" id="edit-artist-address" name="address" required>
+                </div>
+                <small>Please don't include special letter in name</small>
+            </div>
+           
+            <div class="row g-3 my-1">
+             
+                <div class="col-md-4">
+                    <label for="dob" class="form-label">DOB</label>
+                    <input type="date" class="form-control" id="edit-artist-dob" name="dob" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="edit-artist-gender" class="form-select" name="gender" required>
+                        <option selected>Choose...</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Others</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="release_year" class="form-label">First Release Year</label>
+                    <input type="number" class="form-control" min="1800" max="2050" step="1" value="2025" id="edit-release_year" name="release_year"  required/>
+                </div>
+            </div>
+            <div class="col-12 my-3">
+                <button type="submit" class="btn btn-primary">Save Artist</button>
+            </div>
+        </form>
+        </div>
+   
+      </div>
+    </div>
+
+</div>
+

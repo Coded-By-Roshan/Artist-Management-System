@@ -30,10 +30,14 @@
   
             <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
           
-         
-       
-
-          {% endif %}
+          {% else %}
+          {% if title == "Register" %}
+          <a href="{% url 'login_page' %}" class="btn btn-primary">Login</a>
+          {% elif title == "Login" %}
+          <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
+        
+      {% endif %} 
+      {% endif %}
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>

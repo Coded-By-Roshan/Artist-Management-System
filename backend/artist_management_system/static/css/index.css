@@ -89,3 +89,7 @@ th, td {
   margin: auto;
 
 }
+small{
+  font-size: 10px !important;
+  color: #ddd;
+}
