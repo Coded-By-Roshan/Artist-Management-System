@@ -42,7 +42,7 @@ def view_songs(request, artist_id):
 
 
 def validate_song_data(request, title, album_name, genre, valid_genres):
-    if not all([title, album_name, genre, artist_id]):
+    if not all([title, album_name, genre]):
         messages.error(request, 'All fields are required.')
         return False
 
@@ -60,7 +60,7 @@ def add_songs(request,artist_id):
         created_at = updated_at = datetime.datetime.now()
         valid_genres = ['rnb', 'country', 'classic', 'rock', 'jazz']
 
-        if not validate_song_data(request, title, album_name, genre, artist_id, valid_genres):
+        if not validate_song_data(request, title, album_name, genre, valid_genres):
             return redirect('view_songs', artist_id=artist_id)
         try:
             with connection.cursor() as cursor:
@@ -95,15 +95,8 @@ def edit_song(request):
         album_name = request.POST.get('album_name')
         genre = request.POST.get('genre')
         updated_at = datetime.datetime.now()
-
         valid_genres = ['rnb', 'country', 'classic', 'rock', 'jazz']
-
-        if not all([title, album_name, genre]):
-            messages.error(request, 'All fields are required.')
-            return redirect('view_songs', artist_id=artist_id)
-
-        if genre not in valid_genres:
-            messages.error(request, 'Invalid genre selected.')
+        if not validate_song_data(request, title, album_name, genre, valid_genres):
             return redirect('view_songs', artist_id=artist_id)
 
         try:
