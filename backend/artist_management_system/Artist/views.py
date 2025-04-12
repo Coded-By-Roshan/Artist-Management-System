@@ -56,6 +56,8 @@ def add_artist(request):
                 (name, dob, gender, address, first_release_year, no_of_albums_released, created_at, updated_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, [name, dob, gender, address, first_release_year, 0, created_at, updated_at])
+            
+
         messages.success(request, 'Artist added successfully!')
         return redirect(f'{reverse('dashboard')}#artistTab')  
 

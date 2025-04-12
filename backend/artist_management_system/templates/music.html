@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container my-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-primary my-4"><i class="fa-solid fa-arrow-left mx-2"></i>Back</a>
+    <div class="table_tab_header">
+        <h1>Music of {{artist_name}}</h1>
+        <div class="add_songs_container">
+            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#add_songs">Add Songs<i
+                class="fa-solid fa-plus mx-1"></i></button>
+        </div>
+    </div>
+
+    <table class="table my-3 table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">S.N</th>
+            <th scope="col">Title</th>
+            <th scope="col">Album Name</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Updated At</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for song in songs %}
+          <tr>
+            <th scope="row">{{forloop.counter |add:songs.start_index|add:-1}}</th>
+            <td>{{song.title}}</td>
+            <td>{{song.album_name}}</td>
+            <td>{{song.genre}}</td>
+            <td>{{song.created_at}}</td>
+            <td>{{song.updated_at}}</td>
+            <td>
+                <div class="action_icons">
+                  <a href="" data-song_id="{{song.id}}" data-artist_id="{{artist_id}}" data-title="{{ song.title }}"
+                    data-album_name="{{ song.album_name }}" data-genre="{{ song.genre }}" 
+                    data-created="{{ song.created_at }}" class="mx-1 edit_song" data-bs-toggle="modal"
+                    data-bs-target="#edit_songs"><i class="fa-solid fa-pen"></i></a>
+                  <a href="" data-url="{% url 'delete_song' song.id artist_id %}" id="delete_item"><i
+                      class="fa-solid fa-trash"></i></a>
+                </div>
+              </td>
+          </tr>
+          {% endfor %}
+       
+        </tbody>
+      </table>
+
+      <nav aria-label="Page navigation" class="pagination_box">
+        <ul class="pagination">
+          {% if songs.has_previous %}
+          <li class="page-item"><a class="page-link"
+              href="?song_page={{ songs.previous_page_number }}">Prev</a></li>
+          {% endif %}
+  
+          {% for num in songs.paginator.page_range %}
+          {% if num == songs.number %}
+          <li class="page-item page-link"><strong>{{ num }}</strong></li>
+          {% else %}
+          <li class="page-item"> <a class="page-link" href="?song_page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+          {% endfor %}
+          {% if songs.has_next %}
+          <li class="page-item"><a class="page-link" href="?song_page={{ songs.next_page_number }}">Next</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+
+</div>
+
+
+<div class="modal fade" id="add_songs" tabindex="-1" aria-labelledby="add_songsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="add_songsLabel">Add Songs</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'add_songs' artist_id %}"> {% csrf_token %}
+            <div class="row g-3 my-1">
+                <div class="col-md-6">
+
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="album_name" class="form-label">Album Name</label>
+                    <input type="text" class="form-control" id="album_name" name="album_name" required>
+                </div>
+            </div>
+           
+            <div class="row g-3 my-1">
+             
+                <div class="col-md-4">
+                    <label for="genre" class="form-label">Genre</label>
+                    <select id="genre" class="form-select" name="genre" required>
+                        <option selected>Choose...</option>
+                        {% for genere in generes%}
+                        <option value="{{genere}}">{{genere}}</option>
+
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 my-3">
+                <button type="submit" class="btn btn-primary">Add Songs</button>
+            </div>
+        </form>
+        </div>
+   
+      </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="edit_songs" tabindex="-1" aria-labelledby="edit_songsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="edit_songsLabel">Edit Songs</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'edit_songs' %}"> {% csrf_token %}
+            <div class="row g-3 my-1">
+                <div class="col-md-6">
+                    <input type="hidden" id="song_id" name="song_id">
+                    <input type="hidden" id="artist_id" name="artist_id">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="edit-title" name="title" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="album_name" class="form-label">Album Name</label>
+                    <input type="text" class="form-control" id="edit-album_name" name="album_name" required>
+                </div>
+            </div>
+           
+            <div class="row g-3 my-1">
+             
+                <div class="col-md-4">
+                    <label for="genre" class="form-label">Genre</label>
+                    <select id="edit-genre" class="form-select" name="genre" required>
+                        <option selected>Choose...</option>
+                        {% for genere in generes%}
+                        <option value="{{genere}}">{{genere}}</option>
+
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 my-3">
+                <button type="submit" class="btn btn-primary">Save Songs</button>
+            </div>
+        </form>
+        </div>
+   
+      </div>
+    </div>
+
+</div>
+
+
+{% endblock body %}

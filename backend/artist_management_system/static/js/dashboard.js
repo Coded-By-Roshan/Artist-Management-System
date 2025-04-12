@@ -11,7 +11,6 @@ function openTab(evt, tabName) {
   document.getElementById(tabName).classList.add("active");
   evt.currentTarget.classList.add("active");
 
-  window.location.hash = tabName;
 }
 
 window.onload = function () {
@@ -40,6 +39,7 @@ const deleteLinks = document.querySelectorAll('#delete_item');
     });
   });
 
+
 const editButtons = document.querySelectorAll('.edit-btn');
 editButtons.forEach(btn => {
     btn.addEventListener('click', function () {
@@ -49,7 +49,6 @@ editButtons.forEach(btn => {
         document.getElementById('edit-email').value = this.dataset.email;
         document.getElementById('edit-phone').value = this.dataset.phone;
         document.getElementById('edit-dob').value = this.dataset.dob;
-        console.log(this.dataset.dob)
         document.getElementById('edit-gender').value = this.dataset.gender;
         document.getElementById('edit-address').value = this.dataset.address;
     });
@@ -65,6 +64,20 @@ artist_edit.forEach(btn => {
         document.getElementById('edit-artist-address').value = this.dataset.address;
         document.getElementById('edit-artist-gender').value = this.dataset.gender;
         document.getElementById('edit-release_year').value = this.dataset.first_release_year;
+  
+    });
+});
+
+const song_edit = document.querySelectorAll('.edit_song');
+song_edit.forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.getElementById('song_id').value = this.dataset.song_id;
+        document.getElementById('artist_id').value = this.dataset.artist_id;
+        console.log(this.dataset.song_id)
+        console.log(this.dataset.artist_id)
+        document.getElementById('edit-title').value = this.dataset.title;
+        document.getElementById('edit-album_name').value = this.dataset.album_name;
+        document.getElementById('edit-genre').value = this.dataset.genre;
   
     });
 });

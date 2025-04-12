@@ -24,7 +24,7 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">
-            <img class="nav_logo" src="https://static1.squarespace.com/static/5b1735dd8ab722a791596d79/t/5b17486970a6ad549b3a67b5/1740168058039/" alt="AMS">
+            <img class="nav_logo" src="{% static 'images/MS_Logo.png' %}" alt="AMS">
           </a>
           {% if request.session.user_id %}
   
@@ -38,9 +38,7 @@
         
       {% endif %} 
       {% endif %}
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+          
         </div>
       </nav>
       

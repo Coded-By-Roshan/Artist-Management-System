@@ -4,8 +4,8 @@
 {% include 'artist_form.html' %}
 <div class="tab-container">
   <div class="tab-buttons">
-    <button class="tab-link active" data-tab="userTab" onclick="openTab(event, 'userTab')">User</button>
-    <button class="tab-link" data-tab="artistTab" onclick="openTab(event, 'artistTab')">Artist</button>
+    <button class="tab-link active" onclick="openTab(event, 'userTab')">User</button>
+    <button class="tab-link" onclick="openTab(event, 'artistTab')">Artist</button>
   </div>
 
   <div id="userTab" class="tab-content active">
@@ -43,7 +43,7 @@
           <td>{{user.last_name}}</td>
           <td>{{user.email}}</td>
           <td>{{user.phone}}</td>
-          <td>{{user.dob}}</td>
+          <td>{{user.dob|date:'Y-m-d'}}</td>
           <td>{{user.gender}}</td>
           <td>{{user.address}}</td>
           <td>{{user.created_at}}</td>
@@ -123,7 +123,7 @@
           <td>{{artist.no_of_album_released}}</td>
           <td>{{artist.created_at}}</td>
           <td>{{artist.updated_at}}</td>
-          <td><a href="">View Music</a></td>
+          <td><a href="{% url 'view_songs' artist.id %}">View Music</a></td>
           <td>
             <div class="action_icons">
               <a href="" data-id="{{artist.id}}" data-name="{{ artist.name }}"
