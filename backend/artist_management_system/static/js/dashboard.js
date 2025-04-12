@@ -1,3 +1,4 @@
+// handling tabs 
 
 function openTab(evt, tabName) {
   document.querySelectorAll(".tab-content").forEach(tab => {
@@ -25,7 +26,7 @@ window.onload = function () {
 };
 
 
-
+// confirmation popup during delete 
 const deleteLinks = document.querySelectorAll('#delete_item');
   deleteLinks.forEach(link => {
     link.addEventListener('click', function (event) {
@@ -40,6 +41,7 @@ const deleteLinks = document.querySelectorAll('#delete_item');
   });
 
 
+//update users 
 const editButtons = document.querySelectorAll('.edit-btn');
 editButtons.forEach(btn => {
     btn.addEventListener('click', function () {
@@ -54,7 +56,7 @@ editButtons.forEach(btn => {
     });
 });
 
-
+//update artist
 const artist_edit = document.querySelectorAll('.edit_artist');
 artist_edit.forEach(btn => {
     btn.addEventListener('click', function () {
@@ -68,6 +70,7 @@ artist_edit.forEach(btn => {
     });
 });
 
+// update artist 
 const song_edit = document.querySelectorAll('.edit_song');
 song_edit.forEach(btn => {
     btn.addEventListener('click', function () {
@@ -82,3 +85,15 @@ song_edit.forEach(btn => {
     });
 });
 
+
+// handling import button
+import_btn = document.getElementById('import_csv')
+import_btn.addEventListener('click',()=>{
+    document.getElementById('upload_csv').click()
+})
+
+cvs_upload_btn = document.getElementById('upload_csv')
+cvs_upload_btn.addEventListener('change',()=>{
+  console.log("testing...")
+  document.getElementById('csvUploadForm').submit();
+})

@@ -3,8 +3,11 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 import datetime
 from django.db import connection
-from django.urls import reverse
+from AdminUser.decorators import login_required
+from .database import create_music_table
+from django.utils import timezone
 
+@login_required
 def view_songs(request, artist_id):
     artist_name = ""
     try:
@@ -14,7 +17,7 @@ def view_songs(request, artist_id):
             if result:
                 artist_name = result[0]
     except Exception as e:
-        messages.error(request, f"Error fetching artist name: {str(e)}")
+        messages.warning(request, f"Error fetching artist name: {str(e)}")
 
     query = "SELECT * FROM Music WHERE artist_id = %s ORDER BY updated_at DESC"
     with connection.cursor() as cursor:
@@ -43,21 +46,22 @@ def view_songs(request, artist_id):
 
 def validate_song_data(request, title, album_name, genre, valid_genres):
     if not all([title, album_name, genre]):
-        messages.error(request, 'All fields are required.')
+        messages.warning(request, 'All fields are required.')
         return False
 
     if genre not in valid_genres:
-        messages.error(request, 'Invalid genre selected.')
+        messages.warning(request, 'Invalid genre selected.')
         return False
 
     return True
 
+@login_required
 def add_songs(request,artist_id):
     if request.method == 'POST':
         title = request.POST.get('title')
         album_name = request.POST.get('album_name')
         genre = request.POST.get('genre')
-        created_at = updated_at = datetime.datetime.now()
+        created_at = updated_at =timezone.now()
         valid_genres = ['rnb', 'country', 'classic', 'rock', 'jazz']
 
         if not validate_song_data(request, title, album_name, genre, valid_genres):
@@ -81,11 +85,12 @@ def add_songs(request,artist_id):
                 """, [album_count, artist_id])
             messages.success(request, 'Song added successfully.')
         except Exception as e:
-            messages.error(request, f'Failed to add song: {str(e)}')
+            messages.warning(request, f'Failed to add song: {str(e)}')
         return redirect('view_songs', artist_id=artist_id)
 
     return redirect('view_songs', artist_id=artist_id)
 
+@login_required
 def edit_song(request):
     if request.method == 'POST':
         song_id = request.POST.get('song_id')
@@ -94,7 +99,7 @@ def edit_song(request):
         title = request.POST.get('title')
         album_name = request.POST.get('album_name')
         genre = request.POST.get('genre')
-        updated_at = datetime.datetime.now()
+        updated_at = timezone.now()
         valid_genres = ['rnb', 'country', 'classic', 'rock', 'jazz']
         if not validate_song_data(request, title, album_name, genre, valid_genres):
             return redirect('view_songs', artist_id=artist_id)
@@ -111,18 +116,18 @@ def edit_song(request):
                 """, [title, album_name, genre, updated_at, song_id])
             messages.success(request, 'Song updated successfully.')
         except Exception as e:
-            messages.error(request, f'Failed to update song: {str(e)}')
+            messages.warning(request, f'Failed to update song: {str(e)}')
 
         return redirect('view_songs', artist_id=artist_id)
 
     return redirect('dashboard')
 
-
+@login_required
 def delete_song(request, song_id,artist_id):
     try:
         with connection.cursor() as cursor:
             cursor.execute("DELETE FROM Music WHERE id = %s", [song_id])
         messages.success(request, "Music deleted successfully.")
     except Exception as e:
-        messages.error(request, f"Error deleting Music: {e}")
+        messages.warning(request, f"Error deleting Music: {e}")
     return redirect('view_songs', artist_id=artist_id)

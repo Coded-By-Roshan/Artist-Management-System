@@ -3,7 +3,7 @@
 {% block body %}
 
 <div class="container my-3">
-    <a href="{% url 'dashboard' %}" class="btn btn-primary my-4"><i class="fa-solid fa-arrow-left mx-2"></i>Back</a>
+    <a href="/#artistTab" class="btn btn-primary my-4"><i class="fa-solid fa-arrow-left mx-2"></i>Back</a>
     <div class="table_tab_header">
         <h1>Music of {{artist_name}}</h1>
         <div class="add_songs_container">
@@ -37,7 +37,7 @@
                 <div class="action_icons">
                   <a href="" data-song_id="{{song.id}}" data-artist_id="{{artist_id}}" data-title="{{ song.title }}"
                     data-album_name="{{ song.album_name }}" data-genre="{{ song.genre }}" 
-                    data-created="{{ song.created_at }}" class="mx-1 edit_song" data-bs-toggle="modal"
+                     class="mx-1 edit_song" data-bs-toggle="modal"
                     data-bs-target="#edit_songs"><i class="fa-solid fa-pen"></i></a>
                   <a href="" data-url="{% url 'delete_song' song.id artist_id %}" id="delete_item"><i
                       class="fa-solid fa-trash"></i></a>

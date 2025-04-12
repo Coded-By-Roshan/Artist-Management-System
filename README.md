@@ -38,6 +38,7 @@ All CRUD operations are to be performed using **raw SQL queries**, not Django OR
 2. **Artist Management**
    - Paginated list view
    - Create, update, delete artists
+   - Display total album of artist by counting unique albums from music table
    - CSV import/export functionality
    - Button to view songs for an artist
 

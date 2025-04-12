@@ -9,11 +9,13 @@ from django.contrib.auth.hashers import check_password
 from .database import create_user_table
 from Artist.views import get_artist
 import re
+from django.utils import timezone
+
 
 @login_required
 def dashboard(request):
     create_user_table()
-    query = "SELECT * FROM Users ORDER BY updated_at DESC"
+    query = "SELECT * FROM Users ORDER BY id DESC"
     with connection.cursor() as cursor:
         cursor.execute(query)
         rows = cursor.fetchall()
@@ -41,25 +43,25 @@ def dashboard(request):
 
 def validate_user_data(request, first_name, last_name, email, password, password_confirm, phone, dob, gender, address):
     if not all([first_name, last_name, email, password, password_confirm, phone, dob, gender, address]):
-        messages.error(request, 'All fields are required.')
+        messages.warning(request, 'All fields are required.')
         return False
     if (len(phone) != 10 or not phone.isdigit()):
-        messages.error(request, 'Wrong Phone Number.')
+        messages.warning(request, 'Wrong Phone Number.')
         return False
     if password != password_confirm:
-        messages.error(request, 'Passwords do not match.')
+        messages.warning(request, 'Passwords do not match.')
         return False
     if gender not in ['M', 'F', 'O']:
-        messages.error(request, 'Invalid gender selection.')
+        messages.warning(request, 'Invalid gender selection.')
         return False
     if len(password) < 8:
-        messages.error(request, 'Password must be at least 8 characters long.')
+        messages.warning(request, 'Password must be at least 8 characters long.')
         return False
     if not re.match(r'^[A-Za-z\s]+$', first_name):
-        messages.error(request, 'First name cannot contain special characters.')
+        messages.warning(request, 'First name cannot contain special characters.')
         return False
     if not re.match(r'^[A-Za-z\s]+$', last_name):
-        messages.error(request, 'Last name cannot contain special characters.')
+        messages.warning(request, 'Last name cannot contain special characters.')
         return False
     return True
 
@@ -69,16 +71,19 @@ def register_admin(request):
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        password_confirm = request.POST.get('con_password') 
+        password_confirm = request.POST.get('conf_password') 
         if not all([username, email, password, password_confirm]):
-            messages.error(request,'All fields are required.')
+            messages.warning(request,'All fields are required.')
             return redirect('register')
         if password != password_confirm:
-            messages.error(request,'Passwords do not match.')
+            messages.warning(request,'Passwords do not match.')
             return redirect('register')
         if len(password) < 8:
-            messages.error(request,'Password must be at least 8 characters long.')
-            return redirect('register')   
+            messages.warning(request,'Password must be at least 8 characters long.')
+            return redirect('register') 
+        if not re.match(r'^[A-Za-z\s]+$', username):
+            messages.warning(request, 'Username cannot contain special characters.')
+            return redirect('register') 
         try:
             password = make_password(password)
             with connection.cursor() as cursor:
@@ -89,14 +94,14 @@ def register_admin(request):
                         email, is_staff, is_active, date_joined
                     ) VALUES (%s, NULL, TRUE, %s, '', '', %s, TRUE, TRUE, datetime('now'))
                 """, [password, username, email])
-
+            
             messages.success(request, 'Registration successful! Please log in.')
             return redirect('login_page')
         except Exception as e:
             if 'unique' in str(e).lower():
-                messages.error(request, 'Email already exists.')
+                messages.warning(request, 'Email already exists.')
             else:
-                messages.error(request, f'An error occurred during registration.')
+                messages.warning(request, f'An error occurred during registration.')
             return redirect('register')
     return redirect('register')
 
@@ -117,7 +122,7 @@ def check_login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         if not email or not password:
-            messages.error(request, 'Email and password are required.')
+            messages.warning(request, 'Email and password are required.')
             return render(request, 'login.html')
         query = "SELECT id, password FROM auth_user WHERE email = %s"
         with connection.cursor() as cursor:
@@ -130,9 +135,9 @@ def check_login(request):
                 messages.success(request, 'Login successful!')
                 return redirect('dashboard')
             else:
-                messages.error(request, 'Invalid password.')
+                messages.warning(request, 'Invalid password.')
         else:
-            messages.error(request, 'User does not exist.')
+            messages.warning(request, 'User does not exist.')
         return redirect('login_page')
     return redirect('login_page')
 
@@ -165,8 +170,8 @@ def add_user(request):
             dob,
             gender,
             address,
-            datetime.datetime.now(),
-            datetime.datetime.now(),
+            timezone.now(),
+            timezone.now(),
         ]
         try:
             with connection.cursor() as cursor:
@@ -175,9 +180,9 @@ def add_user(request):
             return redirect('dashboard')
         except Exception as e:
             if 'unique' in str(e).lower():
-                messages.error(request, 'Email already exists.')
+                messages.warning(request, 'Email already exists.')
             else:
-                messages.error(request, f'An error occurred during registration.{e}')
+                messages.warning(request, f'An error occurred during registration.{e}')
             return redirect('dashboard')
     return redirect('dashboard')
 
@@ -194,7 +199,7 @@ def delete_user(request, user_id):
             cursor.execute("DELETE FROM Users WHERE id = %s", [user_id])
         messages.success(request, "User deleted successfully.")
     except Exception as e:
-        messages.error(request, f"Error deleting user: {e}")
+        messages.warning(request, f"Error deleting user: {e}")
     return redirect('dashboard')
 
 @login_required
@@ -216,8 +221,9 @@ def edit_user(request):
             user = cursor.fetchone()
 
         if not user:
-            messages.error(request, "User not found.")
+            messages.warning(request, "User not found.")
             return redirect('dashboard')
+        
         query = """
             UPDATE Users SET 
                 first_name=%s, last_name=%s, email=%s, phone=%s,
@@ -234,7 +240,7 @@ def edit_user(request):
             messages.success(request, "User updated successfully.")
             return redirect('dashboard')
         except Exception as e:
-            messages.error(request, f"Error updating user: {e}")
+            messages.warning(request, f"Error updating user: {e}")
             return redirect('edit_user', user_id=user_id)
     return redirect('dashboard')
 
