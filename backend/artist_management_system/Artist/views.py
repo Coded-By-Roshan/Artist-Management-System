@@ -40,7 +40,6 @@ def validate_artist_data(request, name, dob, gender, address, first_release_year
 
 @login_required
 def add_artist(request):
-    create_artist_table()
     if request.method == 'POST':
         name = request.POST.get('fullname')
         dob = request.POST.get('dob')
@@ -67,6 +66,7 @@ def add_artist(request):
 
 @login_required
 def get_artist(request):
+    create_artist_table()
     query = "SELECT * FROM Artist ORDER BY id DESC"
     with connection.cursor() as cursor:
         cursor.execute(query)

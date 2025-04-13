@@ -2,6 +2,11 @@
 
 A simple Django-based Admin Panel to manage records of users, artists, and their song collections.
 
+# Demo Video
+
+https://www.loom.com/share/94cc97f0920741b9bc804e3bd01a4d23?sid=62c47fe0-949c-40c8-9e9d-78e8c526e521
+
+
 ## 🚀 Project Summary
 
 This application provides an admin dashboard where authenticated admin users can:

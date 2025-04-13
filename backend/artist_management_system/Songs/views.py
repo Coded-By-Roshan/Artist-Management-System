@@ -9,6 +9,7 @@ from django.utils import timezone
 
 @login_required
 def view_songs(request, artist_id):
+    create_music_table()
     artist_name = ""
     try:
         with connection.cursor() as cursor:
