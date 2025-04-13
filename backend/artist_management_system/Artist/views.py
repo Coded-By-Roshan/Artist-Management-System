@@ -129,39 +129,44 @@ def edit_artist(request):
 
 @login_required
 def import_artist(request):
-    if request.method == 'POST' and request.FILES.get('csv_file'):
-        csv_file = TextIOWrapper(request.FILES['csv_file'].file, encoding='utf-8')
-        reader = csv.DictReader(csv_file)
+    try:
+        if request.method == 'POST' and request.FILES.get('csv_file'):
+            csv_file = TextIOWrapper(request.FILES['csv_file'].file, encoding='utf-8')
+            reader = csv.DictReader(csv_file)
+            
+            success_count = 0
+
+            with connection.cursor() as cursor:
+                for row in reader:
+                    name = row['Name']
+                    dob = row['DOB']
+                    gender = row['Gender']
+                    address = row['Address']
+                    first_release_year = row['First Release Year']
+                    no_of_albums_released = row.get('Albums Released', 0)
+
+                    if not validate_artist_data(request, name, dob, gender, address, first_release_year):
+                        continue
+
+                    cursor.execute("""
+                        INSERT INTO Artist 
+                        (name, dob, gender, address, first_release_year, no_of_albums_released, created_at, updated_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, [
+                        name, dob, gender, address, first_release_year,
+                        no_of_albums_released, timezone.now(), timezone.now()
+                    ])
+                    success_count += 1
         
-        success_count = 0
+            messages.success(request, f"{success_count} artist(s) imported successfully.")
+            return redirect(f"{reverse('dashboard')}#artistTab")
 
-        with connection.cursor() as cursor:
-            for row in reader:
-                name = row['Name']
-                dob = row['DOB']
-                gender = row['Gender']
-                address = row['Address']
-                first_release_year = row['First Release Year']
-                no_of_albums_released = row.get('Albums Released', 0)
-
-                if not validate_artist_data(request, name, dob, gender, address, first_release_year):
-                    continue
-
-                cursor.execute("""
-                    INSERT INTO Artist 
-                    (name, dob, gender, address, first_release_year, no_of_albums_released, created_at, updated_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """, [
-                    name, dob, gender, address, first_release_year,
-                    no_of_albums_released, timezone.now(), timezone.now()
-                ])
-                success_count += 1
-    
-        messages.success(request, f"{success_count} artist(s) imported successfully.")
+        messages.warning(request, 'Please upload a valid CSV file.')
+        return redirect(f"{reverse('dashboard')}#artistTab")
+    except:
+        messages.warning(request, 'Please upload a valid CSV file.')
         return redirect(f"{reverse('dashboard')}#artistTab")
 
-    messages.warning(request, 'Please upload a valid CSV file.')
-    return redirect(f"{reverse('dashboard')}#artistTab")
 
 
 
