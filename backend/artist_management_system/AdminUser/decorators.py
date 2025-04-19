@@ -9,3 +9,4 @@ def login_required(view_func):
             return redirect('login_page')
         return view_func(request, *args, **kwargs)
     return wrapper
+

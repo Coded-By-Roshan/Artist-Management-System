@@ -1,5 +1,3 @@
-import os
-import django
 from django.db import connection
 
 def create_user_table():

@@ -8,6 +8,13 @@
             <div class="col-md-6">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username">
+                {% for key,value in messages.items %}
+                
+                {% if key == "username" and value == True %}
+                <span class="error_div">Username required</span>
+                {% endif %}
+             
+                {% endfor %}
             </div>
             <div class="col-md-6">
                 <label for="email" class="form-label">Email</label>
@@ -26,6 +33,13 @@
                 <label for="con_password" class="form-label">Confirm Password</label>
                 <input type="password" class="form-control" id="con_password" name="conf_password">
             </div>
+            {% for message in messages %}
+            {% if password in message %}
+            {% if password %}
+            <span class="error_div">Password required</span>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
             <small>Password should contain more than 8 characters</small>
         </div>
         <div class="col-12 my-3">

@@ -11,6 +11,7 @@ def create_music_table():
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             artist_id INTEGER NOT NULL,
-            FOREIGN KEY (artist_id) REFERENCES Artist(id)
+            FOREIGN KEY (artist_id) REFERENCES Artist(id) ON DELETE CASCADE
         );
         """)
+

@@ -50,6 +50,7 @@ def add_artist(request):
         updated_at = timezone.now()
         if not validate_artist_data(request, name, dob, gender, address, first_release_year):
             return redirect(f'{reverse('dashboard')}#artistTab')
+                            
 
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -133,9 +134,7 @@ def import_artist(request):
         if request.method == 'POST' and request.FILES.get('csv_file'):
             csv_file = TextIOWrapper(request.FILES['csv_file'].file, encoding='utf-8')
             reader = csv.DictReader(csv_file)
-            
             success_count = 0
-
             with connection.cursor() as cursor:
                 for row in reader:
                     name = row['Name']
@@ -166,8 +165,6 @@ def import_artist(request):
     except:
         messages.warning(request, 'Please upload a valid CSV file.')
         return redirect(f"{reverse('dashboard')}#artistTab")
-
-
 
 
 @login_required

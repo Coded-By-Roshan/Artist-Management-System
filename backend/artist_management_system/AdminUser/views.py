@@ -19,6 +19,7 @@ def dashboard(request):
     with connection.cursor() as cursor:
         cursor.execute(query)
         rows = cursor.fetchall()
+        
     users = []
     for row in rows:
         users.append({
@@ -72,9 +73,29 @@ def register_admin(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('conf_password') 
-        if not all([username, email, password, password_confirm]):
-            messages.warning(request,'All fields are required.')
+        error_list = {}
+        username_required = False
+        if not username:
+            username_required = True
+        if not email:
+            error_list["username"] = True
+        if not password:
+            error_list["password"] = True
+        if error_list:
+            messages.warning(request,error_list)
+        # if not password:
+        #     error_list.append("Password is required")
+        # if not password_confirm:
+        #     error_list.append("confirm password required")
+        # if username_required:
+        #     messages.warning(request,"Username required")
+        #     return redirect('register')
+        if error_list:  
+            messages.warning(request,error_list)
             return redirect('register')
+        # if not all([username, email, password, password_confirm]):
+        #     messages.warning(request,'All fields are required.')
+        #     return redirect('register')
         if password != password_confirm:
             messages.warning(request,'Passwords do not match.')
             return redirect('register')
@@ -219,6 +240,7 @@ def edit_user(request):
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM Users WHERE id = %s", [user_id])
             user = cursor.fetchone()
+            
 
         if not user:
             messages.warning(request, "User not found.")

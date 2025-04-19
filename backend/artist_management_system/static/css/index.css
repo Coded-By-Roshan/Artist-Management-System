@@ -96,3 +96,9 @@ small{
 #csvUploadForm{
   display: none;
 }
+
+span.error_div{
+  color: red;
+  font-size: 10px;
+  
+}
